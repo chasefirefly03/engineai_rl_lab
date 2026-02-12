@@ -1,0 +1,13 @@
+# 忽略根目录下除 src 文件夹以外的所有内容
+/*
+!/src/
+!.gitignore
+
+# 忽略 Python 缓存和常见临时文件
+**/__pycache__/
+*.py[cod]
+*$py.class
+.DS_Store
+.vscode/
+*.swp
+*~
