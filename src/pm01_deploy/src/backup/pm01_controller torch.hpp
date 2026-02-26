@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <rclcpp/rclcpp.hpp>
-#include <onnxruntime_cxx_api.h>
+#include <torch/script.h>
 #include <yaml-cpp/yaml.h>
 
 
@@ -84,7 +84,7 @@ class pm01_controller : public rclcpp::Node
         // float num_include_obs_steps;
 
         float control_frequency;
-        
+
         Eigen::VectorXf obs;
 		Eigen::VectorXf act;
 
@@ -92,13 +92,8 @@ class pm01_controller : public rclcpp::Node
         std::vector<int> policy_to_xml;
 
         std::string policy_path;
-        Ort::Env env;
-        Ort::Session session;
-        
-        std::vector<const char*> input_node_names;
-        std::vector<const char*> output_node_names;
-        std::vector<std::string> input_node_names_str;
-        std::vector<std::string> output_node_names_str;
+		torch::jit::script::Module module;
+		
 };
 
 #endif

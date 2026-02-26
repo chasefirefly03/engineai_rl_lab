@@ -5,7 +5,6 @@
 #include <thread>
 #include <algorithm>
 #include <cmath>
-#include <fstream>
 #include <yaml-cpp/yaml.h>
 #include <Eigen/Dense>
 #include <Eigen/Core>
@@ -15,7 +14,7 @@
 #include "pm01_controller.hpp"
 
 
-pm01_controller::pm01_controller():Node("pm01_controller"), session(nullptr){
+pm01_controller::pm01_controller():Node("pm01_controller"){
     this->declare_parameter<std::string>("config_file", "");
     this->get_parameter("config_file", config_file);
 
@@ -67,51 +66,8 @@ pm01_controller::pm01_controller():Node("pm01_controller"), session(nullptr){
 
     xml_to_policy = {0, 6, 12, 1, 7, 13, 18, 23, 2, 8, 14, 19, 3, 9, 15, 20, 4, 10, 16, 21, 5, 11, 17, 22};
     policy_to_xml = {0, 3, 8, 12, 16, 20, 1, 4, 9, 13, 17, 21, 2, 5, 10, 14, 18, 22, 6, 11, 15, 19, 23, 7};
-    
-    // Initialize ONNX Runtime
-    env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "pm01_controller");
-    Ort::SessionOptions session_options;
-    session_options.SetIntraOpNumThreads(1);
-    
-    // Check if policy file exists
-    std::ifstream f(policy_file.c_str());
-    if (!f.good()) {
-        RCLCPP_ERROR(this->get_logger(), "Policy file not found: %s", policy_file.c_str());
-        // Handle error?
-    }
-    
-    try {
-        session = Ort::Session(env, policy_file.c_str(), session_options);
-    } catch (const Ort::Exception& e) {
-        RCLCPP_ERROR(this->get_logger(), "Failed to load ONNX model: %s", e.what());
-    }
 
-    // Determine input and output names dynamically
-    Ort::AllocatorWithDefaultOptions allocator;
-    
-    // Inputs
-    size_t num_input_nodes = session.GetInputCount();
-    input_node_names_str.resize(num_input_nodes);
-    input_node_names.resize(num_input_nodes);
-    
-    for (size_t i = 0; i < num_input_nodes; i++) {
-        auto name_ptr = session.GetInputNameAllocated(i, allocator);
-        input_node_names_str[i] = name_ptr.get();
-        input_node_names[i] = input_node_names_str[i].c_str();
-        RCLCPP_INFO(this->get_logger(), "Model Input %zu: %s", i, input_node_names[i]);
-    }
-
-    // Outputs
-    size_t num_output_nodes = session.GetOutputCount();
-    output_node_names_str.resize(num_output_nodes);
-    output_node_names.resize(num_output_nodes);
-
-    for (size_t i = 0; i < num_output_nodes; i++) {
-        auto name_ptr = session.GetOutputNameAllocated(i, allocator);
-        output_node_names_str[i] = name_ptr.get();
-        output_node_names[i] = output_node_names_str[i].c_str();
-        RCLCPP_INFO(this->get_logger(), "Model Output %zu: %s", i, output_node_names[i]);
-    }
+    module = torch::jit::load(policy_file);
 
     current_state_ = ControlState::ZERO_TORQUE;
 }
@@ -221,24 +177,11 @@ void pm01_controller::RLControl() {
     obs.segment(85, 2) = gait_phase;
 
     // policy forward
-    std::vector<int64_t> input_node_dims = {1, obs.size()};
-    size_t input_tensor_size = obs.size();
-    
-    auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-    Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info, obs.data(), input_tensor_size, input_node_dims.data(), input_node_dims.size());
-    
-    auto output_tensors = session.Run(
-        Ort::RunOptions{nullptr}, 
-        input_node_names.data(),
-        &input_tensor, 
-        1, 
-        output_node_names.data(), 
-        1
-    );
-
-    float* floatarr = output_tensors.front().GetTensorMutableData<float>();
-    // Assume output is (1, num_actions)
-    std::memcpy(act.data(), floatarr, static_cast<size_t>(num_actions) * sizeof(float));
+    torch::Tensor torch_tensor = torch::from_blob(obs.data(), {1, obs.size()}, torch::kFloat).clone();
+    std::vector<torch::jit::IValue> inputs;
+    inputs.push_back(torch_tensor);
+    torch::Tensor output_tensor = module.forward(inputs).toTensor();
+    std::memcpy(act.data(), output_tensor.data_ptr<float>(), output_tensor.size(1) * sizeof(float));
     
     for(int i=0; i<act.size(); ++i) {
         if(act(i) > action_clip_limit) act(i) = action_clip_limit;
@@ -271,11 +214,7 @@ void pm01_controller::RLControl() {
     
     if (info_get_obs){std::cout << "obs: \n" << obs.transpose() << std::endl;};
     if (info_get_action_output){std::cout << "action: \n" << act.transpose() << std::endl;};
-    if (info_get_joint_command_output){
-        std::cout << "joint_command_output: \n";
-        for (const auto& val : joint_command_->position) std::cout << val << " ";
-        std::cout << std::endl;
-    };
+    if (info_get_joint_command_output){std::cout << "joint_command_output: \n" << joint_command_->position << std::endl;};
 
      // Check transition to DAMP
     auto gamepad = message_handler_->GetLatestGamepad();

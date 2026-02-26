@@ -12,20 +12,12 @@ find_package(interface_protocol REQUIRED)
 # 修复1：yaml-cpp查找（指定版本+NO_MODULE）
 find_package(yaml-cpp 0.6 REQUIRED NO_MODULE)
 find_package(Eigen3 REQUIRED)
-# find_package(Torch REQUIRED)
-
-set(ONNXRUNTIME_ROOT_DIR "/usr/include/onnxruntime-linux-x64-1.24.2")
-find_path(ONNXRUNTIME_INCLUDE_DIR NAMES onnxruntime_cxx_api.h HINTS ${ONNXRUNTIME_ROOT_DIR}/include)
-find_library(ONNXRUNTIME_LIBRARY NAMES onnxruntime HINTS ${ONNXRUNTIME_ROOT_DIR}/lib)
-
-if (NOT ONNXRUNTIME_INCLUDE_DIR OR NOT ONNXRUNTIME_LIBRARY)
-    message(FATAL_ERROR "ONNX Runtime not found!")
-endif()
+find_package(Torch REQUIRED)
 
 include_directories(
   include
   ${EIGEN3_INCLUDE_DIRS}
-  ${ONNXRUNTIME_INCLUDE_DIR}
+  ${TORCH_INCLUDE_DIRS}
   src
 )
 
@@ -41,7 +33,7 @@ target_link_libraries(pm01_controller
   # 修复2：yaml-cpp链接目标（去掉命名空间别名）
   yaml-cpp
   Eigen3::Eigen
-  ${ONNXRUNTIME_LIBRARY}
+  "${TORCH_LIBRARIES}"
 )
 
 install(TARGETS
