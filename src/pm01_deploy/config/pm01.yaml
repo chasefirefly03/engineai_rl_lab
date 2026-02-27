@@ -1,10 +1,10 @@
-policy_file: "/home/ubuntu/workspace/pm01/deploy/pm01_deploy/src/pm01_deploy/config/policy/onnx/3.onnx"
+policy_file: "/home/ubuntu/workspace/pm01/deploy/pm01_deploy/src/pm01_deploy/config/policy/onnx/A1.onnx"
 
 info_get_action_output: false
 info_get_joint_command_output: false
 info_get_obs: false
 
-set_body_vel: [0.3, 0.0, 0.0]
+set_body_vel: [0.5, 0.0, 0.0]
 
 gravity_world: [0.0, 0.0, -1]
 
@@ -43,19 +43,19 @@ default_joint_pos: [-0.24, 0.0, 0.0, 0.48, -0.24, 0.0,
   # "J18_SHOULDER_PITCH_R", "J19_SHOULDER_ROLL_R", "J20_SHOULDER_YAW_R","J21_ELBOW_PITCH_R", "J22_ELBOW_YAW_R",
   # "J23_HEAD_YAW"
 
-joint_kp: [200, 200, 200, 200, 50, 50,
-           200, 200, 200, 200, 50, 50,
-           200,
-           20, 20, 20, 20, 20,
-           20, 20, 20, 20, 20,
-           20]
-
-# joint_kp: [200, 150, 150, 200, 100, 100,
-#            200, 150, 150, 200, 100, 100,
+# joint_kp: [200, 200, 200, 200, 50, 50,
+#            200, 200, 200, 200, 50, 50,
 #            200,
-#            40, 40, 40, 40, 40,
-#            40, 40, 40, 40, 40,
-#            40]
+#            20, 20, 20, 20, 20,
+#            20, 20, 20, 20, 20,
+#            20]
+
+joint_kp: [200, 150, 150, 200, 100, 100,
+           200, 150, 150, 200, 100, 100,
+           200,
+           40, 40, 40, 40, 40,
+           40, 40, 40, 40, 40,
+           40]
 
 joint_kd: [7.0, 7.0, 7.0, 7.0, 7.0, 7.0,
            7.0, 7.0, 7.0, 7.0, 7.0, 7.0,
