@@ -1,4 +1,5 @@
-policy_file: "/home/ubuntu/workspace/pm01/deploy/pm01_deploy/src/pm01_deploy/config/policy/amp/5.pt"
+policy_file: "src/pm01_deploy/config/policy/minic/dance.pt"
+motion_file_path: "src/pm01_deploy/config/minic_motion_data/dance.npz"
 robot_xml_path: "/home/ubuntu/workspace/pm01/deploy/pm01_deploy/src/pm01_deploy/resource/pm_v2.xml"
 
 get_info: false
@@ -9,25 +10,22 @@ control_decimation: 20
 # 控制周期 (Control Period)=simulation_dt×control_decimation
 
 # Control
-cmd_init: [0.7, 0, 0]
+# cmd_init: [0.8, 0, 0]
 # cmd_init: [0.32201365, -0.23365542, -1.]
 
 
 # Scales
-observation_scale_linear_vel: 1.0
-observation_scale_base_ang_vel: 0.2
-observation_scale_base_quat_w: 1.0
+observation_scale_base_ang_vel: 1.0
 observation_scale_joint_pos: 1.0
-observation_scale_joint_vel: 0.05
-
-action_scale: 0.25
+observation_scale_joint_vel: 1.0
+action_scale: 1.0
 
 # joint control parameters
 default_joint_pos: [-0.24, 0.0, 0.0, 0.48, -0.24, 0.0,
                     -0.24, 0.0, 0.0, 0.48, -0.24, 0.0,
                     0.0,
-                    0.0,  0.1,  0.0, 0.0, 0.0,
-                    0.0, -0.1, 0.0, 0.0, 0.0,
+                    0.2,  0.13,  0.0, -0.65, 0.0,
+                    0.2, -0.13, 0.0, -0.65, 0.0,
                     0.0]
 
   # "J00_HIP_PITCH_L", "J01_HIP_ROLL_L", "J02_HIP_YAW_L", "J03_KNEE_PITCH_L", "J04_ANKLE_PITCH_L", "J05_ANKLE_ROLL_L",
@@ -37,19 +35,13 @@ default_joint_pos: [-0.24, 0.0, 0.0, 0.48, -0.24, 0.0,
   # "J18_SHOULDER_PITCH_R", "J19_SHOULDER_ROLL_R", "J20_SHOULDER_YAW_R","J21_ELBOW_PITCH_R", "J22_ELBOW_YAW_R",
   # "J23_HEAD_YAW"
 
-# joint_kp: [200, 200, 200, 200, 50, 50,
-#            200, 200, 200, 200, 50, 50,
-#            200,
-#            20, 20, 20, 20, 20,
-#            20, 20, 20, 20, 20,
-#            20]
-
 joint_kp: [200, 150, 150, 200, 100, 100,
            200, 150, 150, 200, 100, 100,
            200,
            40, 40, 40, 40, 40,
            40, 40, 40, 40, 40,
            40]
+
 
 joint_kd: [7.0, 7.0, 7.0, 7.0, 7.0, 7.0,
            7.0, 7.0, 7.0, 7.0, 7.0, 7.0,
