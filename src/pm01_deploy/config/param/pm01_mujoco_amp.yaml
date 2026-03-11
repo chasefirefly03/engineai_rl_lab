@@ -1,4 +1,4 @@
-policy_file: "/home/ubuntu/workspace/isaac/isaaclab/logs/rsl_rl/pm01_amp/2026-02-26_17-25-57/exported/policy.pt"
+policy_file: "/home/ubuntu/workspace/pm01/deploy/pm01_deploy/src/pm01_deploy/config/policy/amp/6.pt"
 robot_xml_path: "/home/ubuntu/workspace/pm01/deploy/pm01_deploy/src/pm01_deploy/resource/pm_v2.xml"
 
 get_info: false

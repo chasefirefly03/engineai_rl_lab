@@ -7,7 +7,7 @@ import torch
 import yaml
 import argparse
 
-config_file="/home/ubuntu/workspace/pm01/deploy/pm01_deploy/src/pm01_deploy/config/param/test.yaml"
+config_file="/home/ubuntu/workspace/pm01/deploy/pm01_deploy/src/pm01_deploy/config/param/pm01_mujoco_minic.yaml"
 
 anchor_body_name="LINK_TORSO_YAW"
 MOTION_BODY_INDEX = 3
@@ -85,7 +85,6 @@ if __name__ == "__main__":
     # define context variables
     action = np.zeros(num_actions, dtype=np.float32)
     target_dof_pos = default_angles.copy()
-    num_obs = 129  # 强制更新为 129 维以匹配新的观测组
     obs = np.zeros(num_obs, dtype=np.float32)
 
     counter = 0
